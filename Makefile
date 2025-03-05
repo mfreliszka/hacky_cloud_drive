@@ -7,3 +7,6 @@ lint:
 
 format:
 	ruff format .
+
+rfrontend:
+	cd frontend; flutter run -d chrome
