@@ -1,0 +1,26 @@
+For testing purposes, you can use Fake GCS Server. This is a lightweight, containerized solution that emulates the Google Cloud Storage API, allowing you to test file uploads and storage locally without using AWS S3 or any real Google Cloud services.
+
+Key Benefits of Fake GCS Server:
+Google Cloud Storage API Compatibility: It mimics the GCS API, so you can develop and test your application using the same API calls as you would with real Google Cloud Storage.
+Containerized and Easy to Run: You can spin it up quickly using Docker.
+Local Testing: Ideal for development and testing environments where you need a local object storage system that behaves like Google Cloud Storage.
+
+Running Fake GCS Server with Docker
+You can start Fake GCS Server with a command like:
+
+docker run -d -p 4443:4443 --name fake-gcs-server fsouza/fake-gcs-server
+Port 4443: Fake GCS Server listens on port 4443 by default. You can map it to any port on your host.
+Container Name: The container is named fake-gcs-server for easy reference.
+Image: fsouza/fake-gcs-server is the official Docker image for Fake GCS Server.
+Example Django Integration
+To integrate Fake GCS Server with your Django project (using django-storages for Google Cloud Storage), configure your settings.py like so:
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'your-test-bucket'
+GS_CREDENTIALS = None  # For testing purposes; you can omit credentials if using Fake GCS Server
+
+# Point the storage backend to your local Fake GCS Server instance
+GS_API_ENDPOINT = 'http://127.0.0.1:4443'  # Use the host and port where Fake GCS is running
+Note: Some versions of django-storages may require additional settings for testing against a fake server. Be sure to consult the documentation for your specific version.
+
+By using Fake GCS Server, you can simulate the behavior of Google Cloud Storage entirely locally, enabling you to develop and test your file upload, download, and storage functionality without relying on external cloud services.

@@ -34,9 +34,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Log in and update auth state. Returns true if successful.
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
-      await AuthService.login(email, password);
+      await AuthService.login(username, password);
       // If login succeeds, update state
       isAuthenticated = true;
       errorMessage = null;
@@ -53,9 +53,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Register and update auth state (auto-login on successful registration).
-  Future<bool> register(String email, String password) async {
+  Future<bool> register(String username, String email, String password) async {
     try {
-      await AuthService.register(email, password);
+      await AuthService.register(username, email, password);
       isAuthenticated = true;
       errorMessage = null;
       _scheduleTokenRefresh();

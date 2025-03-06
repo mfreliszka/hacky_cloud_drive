@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'auth_service.dart';
 
 class ApiService {
-  static const String _baseUrl = 'http://http://localhost:8000';
+  static const String _baseUrl = 'http://localhost:8000';
 
   /// Perform a GET request to the given endpoint, with JWT authorization.
   static Future<http.Response> get(String endpoint) async {

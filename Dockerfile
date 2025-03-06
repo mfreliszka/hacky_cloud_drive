@@ -17,8 +17,5 @@ COPY . /src/
 # Expose port 8000
 EXPOSE 8000
 
-#CMD ["make", "run"]
-#CMD ["poetry", "run", "uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--reload"]
 CMD ["make", "run-deploy"]
-#CMD ["poetry", "run", "uvicorn", "config.asgi:application", "--reload"]
 

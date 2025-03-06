@@ -11,6 +11,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  String _username = '';
   String _email = '';
   String _password = '';
 
@@ -25,6 +26,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: Column(
             children: [
+              InputField(
+                hintText: 'Username',
+                keyboardType: TextInputType.text,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter username';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _username = value ?? '',
+              ),
               InputField(
                 hintText: 'Email',
                 keyboardType: TextInputType.emailAddress,
@@ -53,7 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    bool success = await authProvider.register(_email, _password);
+                    bool success = await authProvider.register(_username, _email, _password);
                     if (success) {
                       // If registration is successful, navigate to Dashboard (user is considered logged in)
                       Navigator.pushReplacementNamed(context, '/dashboard');

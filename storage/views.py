@@ -5,12 +5,29 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 # We use MultiPartParser and FormParser for handling file uploads.
 from rest_framework.parsers import MultiPartParser, FormParser
 from storage.models import File, Folder
-from storage.serializers import RegisterSerializer, FileSerializer, FolderSerializer
+from django.shortcuts import get_object_or_404
+from storage.serializers import RegisterSerializer, FileSerializer, FolderSerializer, UserSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
 
-# For login, we'll use DRF SimpleJWT's provided view (TokenObtainPairView) via URL configuration.
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "uuid"  # ✅ Use 'uuid' instead of 'id'
+
+    def retrieve(self, request, uuid=None):
+        if uuid == "default":
+            user = request.user
+        else:
+            user = get_object_or_404(User, uuid=uuid)  # ✅ Filter by 'uuid'
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -25,7 +42,7 @@ class RegisterView(generics.CreateAPIView):
         user = serializer.save()
         # You could generate a token for the new user here if you want to auto-login upon registration.
         data = {
-            "id": user.id,
+            "uuid": user.uuid,
             "username": user.username,
             "email": user.email
         }
@@ -41,35 +58,27 @@ class UserDashboardView(generics.ListAPIView):
         return Folder.objects.filter(owner=self.request.user).order_by('created_at')
 
 
-class FolderViewSet(viewsets.ModelViewSet):
+
+@api_view(['GET'])
+#@permission_classes([IsAuthenticated])
+def dashboard_view(request):
+    user = request.user
+    # The user has exactly one "root" folder, created on user signup.
+    root_folder = user.folders.filter(parent__isnull=True).first()
+    return Response({
+        'user': {
+            'uuid': user.uuid,
+            'username': user.username,
+        },
+        'root_folder_uuid': str(root_folder.uuid) if root_folder else None
+    })
+
+
+class FolderViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # The owner is the current user
-        serializer.save(owner=self.request.user)
-
-    def get_queryset(self):
-        # Return only folders that belong to the user
-        return super().get_queryset().filter(owner=self.request.user)
-
-class FileViewSet(viewsets.ModelViewSet):
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    lookup_field = "uuid"
 
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
-
-
-
-# View Details:
-# RegisterView: A generic CreateAPIView that uses the RegisterSerializer to create a new user. We set permission_classes = [AllowAny] so that new users can register without being authenticated. The create method is overridden to return a custom response (just the new user's info). (By default, it would return the serialized user including the write-only password field which we don't want). We could also integrate token creation here, but we'll keep it simple.
-# Login: We will use the JWT login view provided by DRF SimpleJWT instead of writing our own. Specifically, TokenObtainPairView provides an endpoint to get an access and refresh token pair by username and password.
-# UserDashboardView: A ListAPIView that returns the current user's folders (with nested files as defined in the serializer). We enforce IsAuthenticated, so only logged-in users can access. The get_queryset filters Folder objects by owner=self.request.user to ensure each user only sees their own folders and files. This is critical for security: users should not even retrieve objects that aren't theirs. By filtering at the queryset level, we ensure no other user's data is included.If we had detail views or allowed editing/deleting of folders/files, we would implement object-level permission checks (e.g., a custom permission ensuring obj.owner == request.user) to prevent accessing others' objects​
-# . In this simple dashboard list, filtering the query by user is sufficient to enforce this restriction.

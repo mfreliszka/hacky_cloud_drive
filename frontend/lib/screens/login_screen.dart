@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
+  String _username = '';
   String _password = '';
 
   @override
@@ -25,17 +25,17 @@ class _LoginScreenState extends State<LoginScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Email Input Field
+              // username Input Field
               InputField(
-                hintText: 'Email',
-                keyboardType: TextInputType.emailAddress,
+                hintText: 'Username',
+                keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter email';
+                    return 'Please enter username';
                   }
                   return null;
                 },
-                onSaved: (value) => _email = value ?? '',
+                onSaved: (value) => _username = value ?? '',
               ),
               // Password Input Field
               InputField(
@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     // Attempt login via AuthProvider
-                    bool success = await authProvider.login(_email, _password);
+                    bool success = await authProvider.login(_username, _password);
                     if (success) {
                       // Navigate to Dashboard on successful login
                       Navigator.pushReplacementNamed(context, '/dashboard');

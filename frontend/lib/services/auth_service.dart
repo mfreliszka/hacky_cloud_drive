@@ -10,10 +10,10 @@ class AuthService {
   static String? _refreshToken;
 
   /// Login with email and password. On success, store tokens in secure storage.
-  static Future<void> login(String email, String password) async {
+  static Future<void> login(String username, String password) async {
     final url = Uri.parse('$_baseUrl/api/auth/login/');
     final response = await http.post(url, body: {
-      'email': email,
+      'username': username,
       'password': password,
     });
     if (response.statusCode == 200) {
@@ -30,9 +30,10 @@ class AuthService {
   }
 
   /// Register a new user. On success, store tokens (if API returns them).
-  static Future<void> register(String email, String password) async {
+  static Future<void> register(String username, String email, String password) async {
     final url = Uri.parse('$_baseUrl/api/auth/register/');
     final response = await http.post(url, body: {
+      'username': username,
       'email': email,
       'password': password,
     });
