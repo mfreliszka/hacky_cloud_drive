@@ -1,33 +1,35 @@
 version: '3'
 services:
-  db:
+  postgres:
     image: postgres:15-alpine
     restart: always
     environment:
-      - POSTGRES_DB=myproject
-      - POSTGRES_USER=myprojectuser
-      - POSTGRES_PASSWORD=mypassword
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - POSTGRES_USER: ${DB_USER}
+      - POSTGRES_PASSWORD: ${DB_PASSWORD}
+      - POSTGRES_DB: ${DB_NAME}
+    expose:
+      - 5432
     ports:
-      - "5432:5432"
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:cached
 
   web:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - "db"
+      - "postgres"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     environment:
-      - DB_NAME=myproject
-      - DB_USER=myprojectuser
-      - DB_PASSWORD=mypassword
-      - DB_HOST=db
-      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - SECRET_KEY=your-secret-key-here
       - DEBUG=1
 
