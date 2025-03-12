@@ -65,4 +65,6 @@ class UserDashboardView(generics.ListAPIView):
 @receiver(post_save, sender=User)
 def create_root_folder(sender, instance, created, **kwargs):
     if created:
-        Folder.objects.create(name='root', owner=instance)
+        root_folder = Folder.objects.create(name='root', owner=instance)
+        User.objects.filter(pk=instance.pk).update(root_folder_uuid=root_folder.uuid)
+
