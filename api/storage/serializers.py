@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from storage.models import File, Folder
+from api.storage.models import File, Folder
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

@@ -49,8 +49,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     "drf_spectacular",
-    'storage',
-    "user",
+    "api",
+    "api.storage.apps.StorageConfig",
+    "api.user.apps.UserConfig",
 ]
 
 REST_FRAMEWORK = {
@@ -137,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'uuid',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),   # short-lived access token
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),   # short-lived access token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # longer-lived refresh token
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
