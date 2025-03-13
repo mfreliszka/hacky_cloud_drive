@@ -11,16 +11,16 @@ from api.user.views import (
 )
 
 router = DefaultRouter()
-router.register(r'user', UserViewSet, basename="user")
+router.register(r"", UserViewSet, basename="user")
 
 
 urlpatterns = [
     # auth
-    path('user/register/', RegisterView.as_view(), name='register'),
-    path('user/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWT login
-    path('user/token-refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT refresh
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWT login
+    path('token-refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT refresh
     # user
-    path('user/dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
+    path('dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
 
     path('', include(router.urls)), 
 ]
