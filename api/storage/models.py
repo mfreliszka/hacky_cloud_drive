@@ -8,9 +8,10 @@ User = get_user_model()
 class Folder(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subfolders')
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subfolders', to_field='uuid')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folders')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.owner}:{self.name}"
@@ -22,6 +23,7 @@ class File(models.Model):
     folder = models.ForeignKey(Folder, null=True, blank=True, on_delete=models.SET_NULL, related_name='files')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

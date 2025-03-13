@@ -3,19 +3,15 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 from api.storage.views import (
-    #UserDashboardView,
-    dashboard_view,
     FolderViewSet,
-)
-from api.user.views import(
-    UserViewSet,
+    FileViewSet,
 )
 
 
 router = DefaultRouter()
-router.register(r'folders', FolderViewSet)
-router.register(r'user', UserViewSet, basename="user")
+router.register(r'folder', FolderViewSet)
+router.register(r'file', FileViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)), 
+    path('', include(router.urls)),
 ]

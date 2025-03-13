@@ -1,5 +1,6 @@
-from rest_framework import viewsets, permissions, generics, status
+from rest_framework import mixins, viewsets, permissions, generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -17,25 +18,26 @@ from api.storage.serializers import RegisterSerializer, FileSerializer, FolderSe
 User = get_user_model()
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    lookup_field = "uuid"  # ✅ Use 'uuid' instead of 'id'
+    lookup_field = "uuid"
 
     def retrieve(self, request, uuid=None):
         if uuid == "default":
             user = request.user
         else:
-            user = get_object_or_404(User, uuid=uuid)  # ✅ Filter by 'uuid'
+            user = get_object_or_404(User, uuid=uuid)
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
+    
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]  # Allow anyone (even not logged in) to register
+    permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
         """
@@ -59,7 +61,7 @@ class UserDashboardView(generics.ListAPIView):
 
     def get_queryset(self):
         # Return only the folders belonging to the logged-in user
-        return Folder.objects.filter(owner=self.request.user).order_by('created_at')
+        return Folder.objects.filter(uuid=self.request.user.root_folder_uuid).order_by('created_at')
     
     
 @receiver(post_save, sender=User)

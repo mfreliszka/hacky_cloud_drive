@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, generics, status
+from rest_framework import mixins, viewsets, permissions, generics
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -15,26 +15,28 @@ from api.storage.serializers import RegisterSerializer, FileSerializer, FolderSe
 User = get_user_model()
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def dashboard_view(request):
-    user = request.user
-    # The user has exactly one "root" folder, created on user signup.
-    root_folder = user.folders.filter(parent__isnull=True).first()
-    return Response({
-        'user': {
-            'uuid': user.uuid,
-            'username': user.username,
-        },
-        'root_folder_uuid': str(root_folder.uuid) if root_folder else None
-    })
-
-
-class FolderViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+class FolderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
+    permission_classes = [IsAuthenticated]
     lookup_field = "uuid"
 
-    def get_queryset(self):
-        return super().get_queryset().filter(owner=self.request.user)
+    def retrieve(self, request, uuid=None):
+        if uuid == "default":
+            folder = get_object_or_404(Folder, owner=request.user, name='root')
+        else:
+            folder = get_object_or_404(Folder, uuid=uuid, owner=request.user)
+        serializer = self.serializer_class(folder, context={'request': request})
+        return Response(serializer.data)
+
+
+class FileViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "uuid"
+
+    def retrieve(self, request, uuid=None):
+        file = get_object_or_404(File, owner=request.user, uuid=uuid)
+        serializer = self.serializer_class(file, context={'request': request})
+        return Response(serializer.data)

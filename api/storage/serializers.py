@@ -31,14 +31,15 @@ class RegisterSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ["id", "name", "file", "folder", "owner", "created_at"]
-        read_only_fields = ["owner", "created_at"]
+        fields = ["uuid", "name", "file", "folder", "owner", "created_at", "updated_at"]
+        read_only_fields = ["uuid", "owner", "created_at"]
 
 
 class SubfolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Folder
-        fields = ["uuid", "name"]
+        fields = ["uuid", "name", "created_at", "updated_at"]
+        read_only_fields = ["uuid", "created_at"]
 
 
 class FolderSerializer(serializers.ModelSerializer):
@@ -48,7 +49,8 @@ class FolderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Folder
-        fields = ["id", "uuid", "name", "parent", "subfolders", "files", "owner", "created_at"]
+        fields = ["uuid", "name", "parent", "subfolders", "files", "owner", "created_at", "updated_at"]
+        read_only_fields = ["uuid", "owner", "created_at"]
 
     def get_subfolders(self, obj):
         return FolderSerializer(obj.subfolders.all(), many=True).data

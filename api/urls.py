@@ -9,7 +9,7 @@ urlpatterns = [
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # user app
-    path('user/', include('api.user.urls')),
+    path('', include('api.user.urls')),
     # storage app
-    path('storage/', include('api.storage.urls')),
+    path('', include('api.storage.urls')),
 ]
